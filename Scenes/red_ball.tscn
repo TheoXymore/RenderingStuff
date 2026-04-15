@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://x2ixr0gchtlp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_d478h"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ef67s"]
+diffuse_mode = 1
+albedo_color = Color(1.1638972, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_vckwf"]
+material = SubResource("StandardMaterial3D_ef67s")
+
+[node name="RedBall" type="StaticBody3D" unique_id=1363293983]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2144407412]
+shape = SubResource("SphereShape3D_d478h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1473662013]
+mesh = SubResource("SphereMesh_vckwf")

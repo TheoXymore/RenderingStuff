@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://d3v0inwne65ye"]
+
+[ext_resource type="PackedScene" uid="uid://di2sdvempbmg3" path="res://Scenes/floor.tscn" id="1_ku2vk"]
+[ext_resource type="PackedScene" uid="uid://dwr0pvp88oxgd" path="res://Scenes/blue_box.tscn" id="2_fkl3k"]
+[ext_resource type="PackedScene" uid="uid://x2ixr0gchtlp" path="res://Scenes/red_ball.tscn" id="3_hnodb"]
+[ext_resource type="PackedScene" uid="uid://dqoje8srie4d7" path="res://Scenes/green_cylinder.tscn" id="4_herp8"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ku2vk"]
+sky_top_color = Color(0, 0.8352941, 1, 1)
+sky_horizon_color = Color(1, 0.4745098, 0, 1)
+ground_horizon_color = Color(1, 0.4745098, 0, 1)
+ground_curve = 0.07210025
+
+[sub_resource type="Sky" id="Sky_fkl3k"]
+sky_material = SubResource("ProceduralSkyMaterial_ku2vk")
+
+[sub_resource type="Environment" id="Environment_hnodb"]
+background_mode = 2
+sky = SubResource("Sky_fkl3k")
+
+[sub_resource type="Compositor" id="Compositor_herp8"]
+
+[node name="RenderingVisualizerScene" type="Node3D" unique_id=636666929]
+
+[node name="Floor" parent="." unique_id=203052027 instance=ExtResource("1_ku2vk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6164746, 0)
+
+[node name="BlueBox" parent="." unique_id=1962574067 instance=ExtResource("2_fkl3k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8544997, 0, 1.1778533)
+
+[node name="RedBall" parent="." unique_id=1363293983 instance=ExtResource("3_hnodb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3178468, 0, -0.007332206)
+
+[node name="GreenCylinder" parent="." unique_id=59239748 instance=ExtResource("4_herp8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2300607, 0.5337186, -1.5782415)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=469100616]
+environment = SubResource("Environment_hnodb")
+compositor = SubResource("Compositor_herp8")
