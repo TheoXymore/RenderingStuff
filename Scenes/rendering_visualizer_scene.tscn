@@ -5,6 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://x2ixr0gchtlp" path="res://Scenes/red_ball.tscn" id="3_hnodb"]
 [ext_resource type="PackedScene" uid="uid://dqoje8srie4d7" path="res://Scenes/green_cylinder.tscn" id="4_herp8"]
 [ext_resource type="Script" uid="uid://n1jmhip7s722" path="res://Scripts/pipelined_compositor_effect.gd" id="5_hnodb"]
+[ext_resource type="Script" uid="uid://cusl0isojlp7b" path="res://Scripts/composition_step.gd" id="6_hnodb"]
+[ext_resource type="RDShaderFile" uid="uid://rtkrdatfcane" path="res://Shaders/fisheye.glsl" id="7_herp8"]
+[ext_resource type="RDShaderFile" uid="uid://slamcird8din" path="res://Shaders/depth_shader.glsl" id="7_rmdn7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ku2vk"]
 sky_top_color = Color(0, 0.8352941, 1, 1)
@@ -20,7 +23,17 @@ sky_material = SubResource("ProceduralSkyMaterial_ku2vk")
 background_mode = 2
 sky = SubResource("Sky_fkl3k")
 
-[sub_resource type="CompositorEffect" id="CompositorEffect_rmdn7"]
+[sub_resource type="Resource" id="Resource_mg2kl"]
+script = ExtResource("6_hnodb")
+shader_file = ExtResource("7_rmdn7")
+metadata/_custom_type_script = "uid://cusl0isojlp7b"
+
+[sub_resource type="Resource" id="Resource_naomr"]
+script = ExtResource("6_hnodb")
+shader_file = ExtResource("7_herp8")
+metadata/_custom_type_script = "uid://cusl0isojlp7b"
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_gsux2"]
 resource_local_to_scene = false
 resource_name = ""
 enabled = true
@@ -28,11 +41,11 @@ effect_callback_type = 4
 needs_motion_vectors = false
 needs_normal_roughness = true
 script = ExtResource("5_hnodb")
-steps = null
+steps = Array[ExtResource("6_hnodb")]([SubResource("Resource_mg2kl"), SubResource("Resource_naomr")])
 metadata/_custom_type_script = "uid://n1jmhip7s722"
 
-[sub_resource type="Compositor" id="Compositor_mg2kl"]
-compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_rmdn7")])
+[sub_resource type="Compositor" id="Compositor_herp8"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_gsux2")])
 
 [node name="RenderingVisualizerScene" type="Node3D" unique_id=636666929]
 
@@ -50,4 +63,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2300607, 0.5085254, -1.578
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=469100616]
 environment = SubResource("Environment_hnodb")
-compositor = SubResource("Compositor_mg2kl")
+compositor = SubResource("Compositor_herp8")
