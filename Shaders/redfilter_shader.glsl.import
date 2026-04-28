@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cj1tst8wleyua"
+path="res://.godot/imported/redfilter_shader.glsl-6aca6c740e28527ccfe51bf705ef9e9d.res"
+
+[deps]
+
+source_file="res://Shaders/redfilter_shader.glsl"
+dest_files=["res://.godot/imported/redfilter_shader.glsl-6aca6c740e28527ccfe51bf705ef9e9d.res"]
+
+[params]
+
