@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dwr0pvp88oxgd" path="res://Scenes/blue_box.tscn" id="2_fkl3k"]
 [ext_resource type="PackedScene" uid="uid://x2ixr0gchtlp" path="res://Scenes/red_ball.tscn" id="3_hnodb"]
 [ext_resource type="PackedScene" uid="uid://dqoje8srie4d7" path="res://Scenes/green_cylinder.tscn" id="4_herp8"]
+[ext_resource type="Script" uid="uid://n1jmhip7s722" path="res://Scripts/pipelined_compositor_effect.gd" id="5_hnodb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ku2vk"]
 sky_top_color = Color(0, 0.8352941, 1, 1)
@@ -19,7 +20,19 @@ sky_material = SubResource("ProceduralSkyMaterial_ku2vk")
 background_mode = 2
 sky = SubResource("Sky_fkl3k")
 
+[sub_resource type="CompositorEffect" id="CompositorEffect_rmdn7"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = true
+script = ExtResource("5_hnodb")
+steps = null
+metadata/_custom_type_script = "uid://n1jmhip7s722"
+
 [sub_resource type="Compositor" id="Compositor_mg2kl"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_rmdn7")])
 
 [node name="RenderingVisualizerScene" type="Node3D" unique_id=636666929]
 
