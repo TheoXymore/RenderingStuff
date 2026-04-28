@@ -1,17 +1,12 @@
 @tool
 extends CompositorEffect
 class_name PipelinedCompositorEffect
-
-@export var shader_file : RDShaderFile:
-	set(value):
-		shader_file = value
-		update_shader()
 		
 @export var steps : Array[CompositionStep]:
 	set(value):
 		#Disconnect all the signals of the old array
 		for step in steps :
-			if step.updated.is_connected(update_step):
+			if step != null and step.is_valid and step.updated.is_connected(update_step):
 				step.updated.disconnect(update_step)
 				
 		#Update the array
@@ -19,50 +14,51 @@ class_name PipelinedCompositorEffect
 		
 		#Connect every signal of the new array
 		for step in steps:
-			step.updated.connect(update_step)			
+			if step != null and step.is_valid:
+				step.updated.connect(update_step)	
 		
-var rd:RenderingDevice = RenderingServer.get_rendering_device()
-var shader: RID
-var shaders:Array[RID]
+var rd:RenderingDevice
 var pipeline: RID
 
 var depth_sampler: RID
 var normal_sampler: RID
 
 func update_step(step:CompositionStep)->void:
-	pass
-		
-func update_shader()->void:	
+	#If no RenderingDevice : abort mission
 	if not rd : 
-		return
-		
-	if not shader_file:
+		return 
+	
+	#If there is not a single valid shader, we clear the pipeline
+	if steps.all(func(x):!x.is_valid):
 		if pipeline :
-			rd.free_rid(pipeline)
-		pipeline = RID()
+			rd.free_rid(step.pipeline)
+		step.pipeline = RID()
 		return
 		
 	#clean the old shader
-	if shader.is_valid() :
-		rd.free_rid(shader)
-		shader = RID()
-
-
-	var shader_spirv = shader_file.get_spirv()
-	shader = rd.shader_create_from_spirv(shader_spirv)
-	pipeline = rd.compute_pipeline_create(shader)
+	if step.shader.is_valid() :
+		rd.free_rid(step.shader)
+		step.shader = RID()
+		
+	var shader_spirv = step.shader_file.get_spirv()
+	step.shader = rd.shader_create_from_spirv(shader_spirv)
+	step.pipeline = rd.compute_pipeline_create(step.shader)
 
 func _init() -> void:
-	update_shader()
+	
+	for step in steps:
+		update_step(step)
+	
+	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
+	needs_normal_roughness = true
+	rd = RenderingServer.get_rendering_device()
 	
 	depth_sampler = rd.sampler_create(RDSamplerState.new())
 	normal_sampler = rd.sampler_create(RDSamplerState.new())
 	
-	needs_normal_roughness = true
 	
 	
 func _render_callback(effect_callback_type: int, render_data: RenderData) -> void:
-	
 	if not pipeline.is_valid():
 		return
 		
@@ -101,28 +97,52 @@ func _render_callback(effect_callback_type: int, render_data: RenderData) -> voi
 		"forward_clustered", "normal_roughness"
 	))
 	
+	# Creation of a writing buffer 
+	var format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT #wtf
+	var usage = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT
+	
+	var return_buffer_rid = render_scene_buffers.create_texture(
+		"pipeline_compositor",
+		"return_buffer",
+		format,
+		usage,
+		RenderingDevice.TEXTURE_SAMPLES_1,
+		size,
+		1,1,false,false
+	)
+	
+	var return_buffer_uniform = RDUniform.new()
+	return_buffer_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
+	return_buffer_uniform.binding = 3
+	return_buffer_uniform.add_id(return_buffer_rid)
+	
 	# Setup the bindings = the datas given to the compute shader
 	var bindings:Array[RDUniform] = [
 		color_layer_uniform,
 		depth_layer_uniform,
-		normal_layer_uniform
+		normal_layer_uniform,
+		return_buffer_uniform
 	]
 	
 	# How many process will be created ?
 	var groups = Vector3i(size.x,size.y,1)
-	# The way to give the data to the gpu
-	var uniform_set = rd.uniform_set_create(bindings,shader,0)
-	
+
 	# Setup a list of computations that the GPU will execute
 	var compute_list = rd.compute_list_begin()
+	var uniform_sets:Array[RID]
+	for step_index in range(steps.size()):
+		
+		uniform_sets.append(rd.uniform_set_create(bindings,steps[step_index].shader,0))
 	
-	rd.compute_list_bind_compute_pipeline(compute_list,pipeline)
-	rd.compute_list_bind_uniform_set(compute_list,uniform_set,0)
-	rd.compute_list_set_push_constant(compute_list,push_constant,push_constant.size())
-	rd.compute_list_dispatch(compute_list,groups.x,groups.y,groups.z)
+		rd.compute_list_bind_compute_pipeline(compute_list,steps[step_index].pipeline)
+		rd.compute_list_bind_uniform_set(compute_list,uniform_sets[step_index],step_index)
+		rd.compute_list_set_push_constant(compute_list,push_constant,push_constant.size())
+		rd.compute_list_dispatch(compute_list,groups.x,groups.y,groups.z)
+		
 	rd.compute_list_end()
 	
-	rd.free_rid(uniform_set)
+	for uniform_set in uniform_sets:
+		rd.free_rid(uniform_set)
 	
 	
 	
