@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://di2sdvempbmg3"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nvnu3"]
+albedo_color = Color(0.39215687, 0.39215687, 0.39215687, 0.78431374)
 metallic = 1.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_agfsv"]
