@@ -23,17 +23,17 @@ sky_material = SubResource("ProceduralSkyMaterial_ku2vk")
 background_mode = 2
 sky = SubResource("Sky_fkl3k")
 
-[sub_resource type="Resource" id="Resource_mg2kl"]
+[sub_resource type="Resource" id="Resource_rmdn7"]
 script = ExtResource("6_hnodb")
 shader_file = ExtResource("7_rmdn7")
 metadata/_custom_type_script = "uid://cusl0isojlp7b"
 
-[sub_resource type="Resource" id="Resource_naomr"]
+[sub_resource type="Resource" id="Resource_mg2kl"]
 script = ExtResource("6_hnodb")
 shader_file = ExtResource("7_herp8")
 metadata/_custom_type_script = "uid://cusl0isojlp7b"
 
-[sub_resource type="CompositorEffect" id="CompositorEffect_gsux2"]
+[sub_resource type="CompositorEffect" id="CompositorEffect_naomr"]
 resource_local_to_scene = false
 resource_name = ""
 enabled = true
@@ -41,11 +41,11 @@ effect_callback_type = 4
 needs_motion_vectors = false
 needs_normal_roughness = true
 script = ExtResource("5_hnodb")
-steps = Array[ExtResource("6_hnodb")]([SubResource("Resource_mg2kl"), SubResource("Resource_naomr")])
+steps = Array[ExtResource("6_hnodb")]([SubResource("Resource_rmdn7"), SubResource("Resource_mg2kl")])
 metadata/_custom_type_script = "uid://n1jmhip7s722"
 
 [sub_resource type="Compositor" id="Compositor_herp8"]
-compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_gsux2")])
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_naomr")])
 
 [node name="RenderingVisualizerScene" type="Node3D" unique_id=636666929]
 
