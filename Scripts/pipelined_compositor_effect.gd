@@ -14,24 +14,21 @@ class_name PipelinedCompositorEffect
 		
 		#Connect every signal of the new array
 		for step in steps:
-			if step != null and step.is_valid:
+			if step != null:
 				step.updated.connect(update_step)	
 		
 var rd:RenderingDevice
-var pipeline: RID
-
 
 var depth_sampler: RID
 var normal_sampler: RID
 
 func update_step(step:CompositionStep)->void:
 	#If no RenderingDevice : abort mission
-	if not rd : 
+	if not rd or step == null: 
 		return 
 	
-	#If there is not a single valid shader, we clear the pipeline
-	if steps.all(func(x):!x.is_valid):
-		if pipeline :
+	if not step.is_valid:
+		if step.pipeline :
 			rd.free_rid(step.pipeline)
 		step.pipeline = RID()
 		return
@@ -60,9 +57,6 @@ func _init() -> void:
 	
 	
 func _render_callback(effect_callback_type: int, render_data: RenderData) -> void:
-	if not pipeline.is_valid():
-		print("Aie aie aie")
-		return
 		
 	# Access every rendering buffer used during processing
 	var render_scene_buffers:RenderSceneBuffersRD = render_data.get_render_scene_buffers()
@@ -109,6 +103,11 @@ func _render_callback(effect_callback_type: int, render_data: RenderData) -> voi
 	var uniform_sets:Array[RID]
 	
 	for step_index in range(steps.size()):
+		var step = steps[step_index]
+		
+		if step == null or not step.is_valid or not step.pipeline.is_valid():
+			print("Aie aie aie")
+			continue
 		
 		var input_uniform = RDUniform.new()
 		input_uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_IMAGE
@@ -131,7 +130,7 @@ func _render_callback(effect_callback_type: int, render_data: RenderData) -> voi
 		uniform_sets.append(uset)
 	
 		rd.compute_list_bind_compute_pipeline(compute_list,steps[step_index].pipeline)
-		rd.compute_list_bind_uniform_set(compute_list,uniform_sets[step_index],step_index)
+		rd.compute_list_bind_uniform_set(compute_list,uset,0)
 		rd.compute_list_set_push_constant(compute_list,push_constant,push_constant.size())
 		rd.compute_list_dispatch(compute_list,groups.x,groups.y,groups.z)
 		
@@ -145,18 +144,18 @@ func _render_callback(effect_callback_type: int, render_data: RenderData) -> voi
 			current_output_rid = ping_rid
 		
 	rd.compute_list_end()
-	
-	rd.texture_copy(current_input_rid, render_scene_buffers.get_color_layer(0), Vector3(0,0,0), Vector3(0,0,0), Vector3(size.x, size.y, 1), 0, 0, 0, 0)
+	if (current_input_rid != color_rid):
+		rd.texture_copy(current_input_rid, color_rid, Vector3(0,0,0), Vector3(0,0,0), Vector3(size.x, size.y, 1), 0, 0, 0, 0)
 	
 	for uniform_set in uniform_sets:
 		rd.free_rid(uniform_set)
 	
-func get_buffer(render_scene_buffers,buffer_name,size)->RID:
-	var buffer_rid = render_scene_buffers.get_texture("pipeline_compositor",buffer_name,size)
+func get_buffer(render_scene_buffers:RenderSceneBuffersRD,buffer_name,size)->RID:
+	var buffer_rid = render_scene_buffers.get_texture("pipeline_compositor",buffer_name)
 	if not buffer_rid.is_valid():
 		# Creation of a writing buffer 
 		var format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT
-		var usage = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT
+		var usage = RenderingDevice.TEXTURE_USAGE_STORAGE_BIT | RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
 	
 		buffer_rid = render_scene_buffers.create_texture(
 		"pipeline_compositor",
