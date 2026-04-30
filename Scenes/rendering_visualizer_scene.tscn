@@ -5,9 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://x2ixr0gchtlp" path="res://Scenes/red_ball.tscn" id="3_hnodb"]
 [ext_resource type="PackedScene" uid="uid://dqoje8srie4d7" path="res://Scenes/green_cylinder.tscn" id="4_herp8"]
 [ext_resource type="Script" uid="uid://n1jmhip7s722" path="res://Scripts/pipelined_compositor_effect.gd" id="5_hnodb"]
-[ext_resource type="Script" uid="uid://cusl0isojlp7b" path="res://Scripts/composition_step.gd" id="6_hnodb"]
-[ext_resource type="RDShaderFile" uid="uid://rtkrdatfcane" path="res://Shaders/fisheye.glsl" id="7_herp8"]
-[ext_resource type="RDShaderFile" uid="uid://slamcird8din" path="res://Shaders/depth_shader.glsl" id="7_rmdn7"]
+[ext_resource type="Script" uid="uid://cusl0isojlp7b" path="res://Scripts/composition_step.gd" id="6_herp8"]
+[ext_resource type="RDShaderFile" uid="uid://bj1akklpiruku" path="res://Shaders/grayscale_shader.glsl" id="7_herp8"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ku2vk"]
 sky_top_color = Color(0, 0.8352941, 1, 1)
@@ -24,16 +23,11 @@ background_mode = 2
 sky = SubResource("Sky_fkl3k")
 
 [sub_resource type="Resource" id="Resource_rmdn7"]
-script = ExtResource("6_hnodb")
-shader_file = ExtResource("7_rmdn7")
-metadata/_custom_type_script = "uid://cusl0isojlp7b"
-
-[sub_resource type="Resource" id="Resource_mg2kl"]
-script = ExtResource("6_hnodb")
+script = ExtResource("6_herp8")
 shader_file = ExtResource("7_herp8")
 metadata/_custom_type_script = "uid://cusl0isojlp7b"
 
-[sub_resource type="CompositorEffect" id="CompositorEffect_naomr"]
+[sub_resource type="CompositorEffect" id="CompositorEffect_mg2kl"]
 resource_local_to_scene = false
 resource_name = ""
 enabled = true
@@ -41,11 +35,11 @@ effect_callback_type = 4
 needs_motion_vectors = false
 needs_normal_roughness = true
 script = ExtResource("5_hnodb")
-steps = Array[ExtResource("6_hnodb")]([SubResource("Resource_rmdn7"), SubResource("Resource_mg2kl")])
+steps = Array[ExtResource("6_herp8")]([SubResource("Resource_rmdn7")])
 metadata/_custom_type_script = "uid://n1jmhip7s722"
 
 [sub_resource type="Compositor" id="Compositor_herp8"]
-compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_naomr")])
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_mg2kl")])
 
 [node name="RenderingVisualizerScene" type="Node3D" unique_id=636666929]
 
